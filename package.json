@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "ollama": "^0.5.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "naive": "ts-node naive-rag-no-embeddings.ts",
+    "refined": "ts-node rag-with-embeddings.ts",
+    "embedgen": "ts-node ./embedding/create-embeddings-file.ts",
+    "wikigen": "ts-node get-currency-data.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1"
+  }
+}
