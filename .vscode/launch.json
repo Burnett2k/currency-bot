@@ -4,30 +4,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Run generate embeddings",
-      "program": "${workspaceFolder}/embedding/create-embeddings-file.ts",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Run naive",
-      "program": "${workspaceFolder}/naive-rag-no-embeddings.ts",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Run rag with embeddings",
-      "program": "${workspaceFolder}/rag-with-embeddings.ts",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Debug Current TypeScript File",
       "program": "${file}",
       "runtimeArgs": ["-r", "ts-node/register"],
