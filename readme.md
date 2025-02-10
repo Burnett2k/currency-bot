@@ -11,7 +11,7 @@ I'm going to use Ollama to run [llama 3.1](https://ollama.com/library/llama3.1) 
 ## Naive Approach
 
 
-* Part 1
-* Part 2
-* Part 3
+* [Part 1](./docs/naive-rag-part-1.md)
+* [Part 2](./docs/naive-rag-part-2.md)
+* [Part 3](./docs/naive-rag-part-3.md)
 
