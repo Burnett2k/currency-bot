@@ -8,7 +8,8 @@
     "naive": "ts-node ./bots/naive-rag-no-embeddings.ts",
     "refined": "ts-node ./bots/rag-with-embeddings.ts",
     "embedgen": "ts-node ./scripts/create-embeddings-file.ts",
-    "wikigen": "ts-node ./scripts/get-currency-data.ts"
+    "wikigen": "ts-node ./scripts/get-currency-data.ts",
+    "runts": "ts-node"
   },
   "devDependencies": {
     "@types/node": "^22.13.1"
