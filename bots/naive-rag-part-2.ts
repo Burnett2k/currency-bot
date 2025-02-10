@@ -1,39 +1,55 @@
 import ollama from "ollama";
 import readline from "readline";
-import { currencies } from "../data/currencies";
+
+type currencies = keyof typeof currencies.exchange_rates;
+
+const currencies = {
+  base_currency: "USD",
+  last_updated: "2025-02-05T12:00:00Z",
+  exchange_rates: {
+    EUR: 0.92,
+    GBP: 0.79,
+    JPY: 148.5,
+    AUD: 1.52,
+    CAD: 1.34,
+    CHF: 0.87,
+    CNY: 7.1,
+    INR: 83.0,
+    BRL: 4.95,
+    ZAR: 18.45,
+  },
+} as const;
 
 const SYSTEM_MESSAGE = {
   role: "system",
-  content: `You are a fact-based helpful financial analyst. Your purpose is to help users with currency conversions. 
-    You need to know at a minimum the target and destination to answer correctly. If the user doesn't know that, 
-    explain to them what currencies you support and what information you need.
-     If the information needed to answer is not available, respond in one sentence that you don't have the answer and 
-     list the currencies you know about in their full name. Do not give advice or tips. Do NOT guess. Only provide 
-     answers when confident. It is critically important to show your work back to the user so they can verify it.
-     When showing your work, use simple text because you are responding in a chat application which cannot parse complicated math equations. 
-     You have information about the following currencies: ${Object.keys(
-       currencies.exchange_rates
-     )}`,
+  content: `You are a fact-based helpful financial analyst. Your purpose is to help users with currency conversions.
+    You need to know at a minimum the source and destination currency to answer correctly. If the user doesn't provide that,
+    explain what currencies you support and what information you need. You must show your calculations so the user can verify and
+    trust your responses.
+
+    NOTE: If there is **no direct conversion rate** between two currencies, you **MUST**:
+    1. Convert the source currency to USD (if it's not already USD).
+    2. Then convert from USD to the destination currency.
+
+    This requires you to call the 'get_currency_conversions' function **twice**—once for each currency involved in the conversion.
+
+    You have information about these currencies: ${Object.keys(
+      currencies.exchange_rates
+    )}. All conversion rates are in relation to the US Dollar.`,
 };
 
-let messages = [SYSTEM_MESSAGE];
+// Simulate an api call to get currency conversions
+function getCurrencyConversion(args: { [key: string]: any }) {
+  const destination = args.destination as currencies;
 
-function getCurrencyConversion({ destination }: { destination: currencies }) {
-  try {
-    if (!currencies.exchange_rates[destination]) {
-      return JSON.stringify({
-        error: `Cannot compute conversion to '${destination}'. No data available.`,
-      });
+  return JSON.stringify(
+    currencies.exchange_rates[destination] || {
+      error: "Cannot compute",
     }
-
-    return JSON.stringify({
-      rate: currencies.exchange_rates[destination].rate,
-    });
-  } catch (error) {
-    console.error("Conversion Error:", error);
-    return JSON.stringify({ error: "An unexpected error occurred." });
-  }
+  );
 }
+
+let messages = [SYSTEM_MESSAGE];
 
 async function handleQuery(model: string, userQuery: string) {
   messages.push({
@@ -51,7 +67,7 @@ async function handleQuery(model: string, userQuery: string) {
         function: {
           name: "get_currency_conversions",
           description:
-            "Get currency conversion rates from USD to another currency",
+            "Retrieves currency conversion rates between the United States Dollar and one other destination Currency. All answers are in relation to USD.",
           parameters: {
             type: "object",
             properties: {
@@ -66,6 +82,7 @@ async function handleQuery(model: string, userQuery: string) {
       },
     ],
   });
+
   // Add the model's response to the conversation history
   messages.push(response.message);
 
@@ -86,15 +103,11 @@ async function handleQuery(model: string, userQuery: string) {
         tool.function.arguments as any
       );
 
-      // output from the function call
-      // console.log(
-      //   `functionResponse from ${tool.function.name}`,
-      //   functionResponse
-      // );
-      // Add function response to the conversation
+      // Add function response to the conversation in clear terms
+      const output = `The exchange rate from USD to ${tool.function.arguments.destination} is ${functionResponse}`;
       messages.push({
         role: "tool",
-        content: functionResponse,
+        content: output,
       });
     }
   } else {
@@ -120,6 +133,7 @@ const rl = readline.createInterface({
 });
 
 const askQuestion = (prompt: string) => {
+  rl.write("How many JPY are in 200 AUD?");
   rl.question(prompt, (query) => {
     if (query.toLowerCase() === "exit") {
       console.log("Goodbye!");
